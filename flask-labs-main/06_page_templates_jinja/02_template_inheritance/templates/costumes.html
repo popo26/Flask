@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+
+<body>
+{% block page_content %}
+    <section id="pageContent">
+        <main role="main">
+            {# Here is what each costume listing should look like in HTML #}
+            {% for costume in costumes_list %}
+            <article>
+                <h2>{{ costume.header }}</h2>
+                <img class="costume" src='{{ costume.image }}'>
+                <p>{{ costume.body }}</p>
+            </article>
+            {% endfor %}
+            {# then the next costume, then the next... #}
+            {# How can you list all of the costumes (in app.py) using Jinja? #}
+        </main>
+    </section>
+    {% endblock %}
+ 
+</body>

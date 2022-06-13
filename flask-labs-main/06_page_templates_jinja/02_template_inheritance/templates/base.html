@@ -1,0 +1,87 @@
+{% extends 'bootstrap/base.html' %}
+
+<html lang="en">
+{% block head %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Simple HTML5 Page layout template with header, footer, sidebar etc.">
+    <link rel="stylesheet" href="static/style.css">
+
+
+    {% block title %}{{ super() }}<title>Emily's Dog Costumes</title>{% endblock %}
+</head>
+{% endblock %}
+
+<body>
+
+    {% block navbar %}
+    <header>
+        <div id="logo"><img src="static/logo.png"><h1>Emily's Dog Costumes</h1></div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a>
+                <li><a href="/services">Services</a>
+                <li><a href="/costumes">Costumes</a>
+            </ul>
+        </nav>
+    </header>
+
+
+
+    
+       <!-- <header>
+        <div id="logo"><img src="static/logo.png">
+            <h1>Emily's Dog Costumes</h1>
+        </div>
+    
+    
+        <nav class="navbar navbar-expand-lg navbar-light bg-light"></nav>
+            <a class="navbar-brand" href="/">Emily's Dog Costumes</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-item nav-link" href="/services">Services</a>
+                    <a class="nav-item nav-link" href="/costumes">Costumues</a>
+                    <a class="nav-item nav-link disabled" href="#">Disabled</a>
+                </div>
+            </div>
+        </nav>
+    </header> -->
+
+ 
+
+
+    {% endblock %}
+
+
+    {% block content %}
+
+    {% block page_content %}{% endblock %}
+
+    {% block footer %}
+    <footer>
+        <p>&copy; All rights reserved to Emily, Dog Costume Extraordinaire</p>
+        <address>
+            Contact: <a href="mailto:emily@example.com">Emily, Dog Costumer</a>
+        </address>
+    </footer>
+    {% endblock %}
+
+    {% endblock %}
+
+ 
+
+
+</body>
+
+
+
+</html>

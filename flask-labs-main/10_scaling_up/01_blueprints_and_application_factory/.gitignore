@@ -1,0 +1,10 @@
+*.DS_Store
+*.pyc
+*.db
+blogger/_pycache_
+env/
+
+__pycache__
+
+venv
+.env
