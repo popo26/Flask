@@ -3,6 +3,7 @@ from . import main
 from .forms import NameForm
 from .. import db
 from ..models import Role, User
+from flask_login import login_required
 
 @main.route("/", methods=['GET', "POST"]) # not @app.route anymore
 def index():
@@ -22,3 +23,8 @@ def index():
         flash("Great! We hope you enjoy the community")
         return redirect(url_for('main.index')) # change form just "index". Or ".index"
     return render_template('index.html', form=form, name=session.get("name"), known=session.get('known', False))
+
+@main.route("/top-secret")
+@login_required
+def top_secret():
+    return "Welcome, VIP member!"

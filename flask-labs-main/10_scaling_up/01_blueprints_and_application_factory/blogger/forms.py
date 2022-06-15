@@ -1,7 +1,10 @@
 from flask_wtf import FlaskForm
 from wtforms import TextField, TextAreaField, SubmitField, PasswordField, BooleanField
+# from wtforms.fields import TextField, TextAreaField, SubmitField, PasswordField, BooleanField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Length, Email
+
+
 
 def length_check(form,field):
     if len(field.data) == 0:
