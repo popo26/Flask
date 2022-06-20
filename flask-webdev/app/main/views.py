@@ -28,3 +28,4 @@ def index():
 @login_required
 def top_secret():
     return "Welcome, VIP member!"
+    

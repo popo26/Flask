@@ -21,16 +21,16 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(64), unique=True, index=True)
 
-    @property
-    def password(self):
-        raise AttributeError("password is not a readable attribute")
+    # @property
+    # def set_password(self):
+    #     raise AttributeError("password is not a readable attribute")
 
-    @password.setter
-    def password(self, password):
+    # @set_password.setter   #Once including line 24 to 28, the password doesn't get hashed at register view.
+    def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
-        self.check_password_hash = generate_password_hash(password)
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return f"<User {self.username}>"
