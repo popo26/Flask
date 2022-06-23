@@ -1,20 +1,90 @@
 from . import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from . import current_app
 import jwt
 from datetime import datetime, timedelta
+from config import config
+from app import create_app, config
 
+from dotenv import load_dotenv
 
+load_dotenv()
+
+class Permission:
+    FOLLOW = 1
+    REVIEW = 2
+    PUBLISH = 4
+    MODERATE = 8
+    ADMIN = 16
 
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
     users = db.relationship('User', backref="role", lazy="dynamic") #with lazy, you can run order_by filter
+
+    #overwrite Role class
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
 
     def __repr__(self):
         return f"<Role {self.name}>"
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+    
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+    def reset_permissions(self):
+        self.permissions = 0
+
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
+ #This is handy to run by Role.insert_roles() when you freshly start a db
+    @staticmethod
+    def insert_roles():
+        roles = {
+            'User': [Permission.FOLLOW,
+                     Permission.REVIEW,
+                     Permission.PUBLISH],
+            
+            'Moderator':[Permission.FOLLOW,
+                         Permission.REVIEW,
+                         Permission.PUBLISH,
+                         Permission.MODERATE],
+
+            'Administrator': [Permission.FOLLOW,
+                              Permission.REVIEW,
+                              Permission.PUBLISH,
+                              Permission.MODERATE,
+                              Permission.ADMIN],
+        }
+
+        default_role = 'User'
+        for r in roles:
+            # see if role is already in table
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                # it's not so make a new one
+                role = Role(name=r)
+            role.reset_permissions()
+            # add whichever permissions the role needs
+            for perm in roles[r]:
+                role.add_permission(perm)
+            # if role is the default one, default is True
+            role.default = (role.name == default_role)
+            db.session.add(role)
+        db.session.commit()
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -25,6 +95,14 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(64), unique=True, index=True)
     confirmed = db.Column(db.Boolean, default=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if self.role is None:
+            # if self.email == current_app.config['RAGTIME_ADMIN']:
+            if self.email == 'aipythontest1000@gmail.com':
+                self.role = Role.query.filter_by(name='Administrator').first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
     # @property
     # def set_password(self):
     #     raise AttributeError("password is not a readable attribute")
@@ -68,6 +146,21 @@ class User(UserMixin, db.Model):
     #     db.session.add(self) 
     #     # the data isn't committed yet as you want to make sure the user is currently logged in.
     #     return True
+
+    def can(self, perm):
+        return self.role is not None and self.role.has_permission(perm)
+
+    def is_administrator(self):
+        return self.can(Permission.ADMIN)
+
+class AnonymousUser(AnonymousUserMixin):
+    def can(self, perm):
+        return False
+
+    def is_administrator(self):
+        return False
+
+login_manager.anonymous_user = AnonymousUser
 
 @login_manager.user_loader
 def load_user(user_id):

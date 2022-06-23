@@ -4,6 +4,23 @@ from .forms import NameForm
 from .. import db
 from ..models import Role, User
 from flask_login import login_required
+from .. decorators import admin_required, permission_required
+from ..models import Permission
+
+
+@main.route('/admin')
+@login_required
+@admin_required
+def for_admins_only():
+    return "Welcome, administrator!"
+
+
+@main.route('/moderate')
+@login_required
+@permission_required(Permission.MODERATE)
+def for_moderators_only():
+    return "Greetings, moderator!"
+
 
 @main.route("/", methods=['GET', "POST"]) # not @app.route anymore
 def index():
