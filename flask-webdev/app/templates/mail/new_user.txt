@@ -1,0 +1,5 @@
+New User mail text test
+
+Hi Admin, 
+
+New user {{ user.username }} is added.

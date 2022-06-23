@@ -1,4 +1,4 @@
 venv
 .env
-__pychache_
+__pycache__
 *.sqlite
