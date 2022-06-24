@@ -94,6 +94,15 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     email = db.Column(db.String(64), unique=True, index=True)
     confirmed = db.Column(db.Boolean, default=False)
+    name = db.Column(db.String(64))
+    location = db.Column(db.String(64))
+    bio = db.Column(db.Text())
+    last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+        db.session.commit()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
