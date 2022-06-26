@@ -201,6 +201,16 @@ class Composition(db.Model):
     timestamp = db.Column(db.DateTime, index = True, default=datetime.utcnow)
     artist_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+    # def is_SINGLE(self, type):
+    #     return self.release_type == 1
+
+    # def is_EXTENDED_PLAY(self, type):
+    #     return self.release_type == 2
+
+    # def is_ALBUM(self, type):
+    #     return self.release_type == 3
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

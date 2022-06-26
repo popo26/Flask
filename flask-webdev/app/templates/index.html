@@ -4,7 +4,7 @@
 {% block title %}{{ super() }} Home{% endblock %}
 
 {% block page_content %}
-<h1>Welcome to Ragtime, 
+<h1>Welcome to Ragtime,
     {% if current_user.is_authenticated %}
     {{ current_user.username }}
     {%- else %}
@@ -12,11 +12,11 @@
     {%- endif %}
 </h1>
 <div>
-{% if not known %}
-<p>Mucho gusto! (Nice to meet you!)</p>
-{% else %}
-<p>Enjoy your stay.</p>
-{% endif %}
+    {% if not known %}
+    <p>Mucho gusto! (Nice to meet you!)</p>
+    {% else %}
+    <p>Enjoy your stay.</p>
+    {% endif %}
 </div>
 
 <h3>Composition # {{ compositions|length }} </h3>
@@ -24,8 +24,41 @@
 <form method="POST">
 
 
-{{ wtf.quick_form(form) }}
+    {{ wtf.quick_form(form) }}
 
 </form>
+<br>
+
+<ul class="compositions"> {# All compositions #}
+    {% for composition in compositions %}
+
+
+    <li class="composition"> {# Single composition #}
+        <div class="composition-thumbnail"> 
+            <a href="{{ url_for('main.user', username=composition.artist.username) }}">
+                <img src="{{ composition.artist.unicornify(size=32) }}">
+            </a>
+        </div>
+    
+            <div class="composition-date">{{ moment(composition.timestamp).fromNow() }}</div>
+            <div class="composition-artist">
+                <a href="{{ url_for('main.user', username=composition.artist.username) }}">
+                    {{ composition.artist.username }}
+                </a> 
+            </div>
+            <div class="composition-release-type">
+                {% if composition.release_type == 1 %}
+                <p>Single</p>{% endif %}
+                {% if composition.release_type == 2 %}
+                <p>Extended_Play</p>{% endif %}
+                {% if composition.release_type == 3 %}
+                <p>Album</p>{% endif %}
+            </div>
+            <div class="composition-title">{{ composition.title }}</div>
+        <div class="composition-content">{{ composition.description }}</div>
+    </li>
+    {% endfor %}
+</ul>
+
 
 {% endblock %}

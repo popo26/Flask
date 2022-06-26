@@ -2,7 +2,7 @@ from flask import request, session, render_template, redirect, url_for, flash
 from . import main
 from .forms import AdminLevelEditProfileForm, CompositionForm, EditProfileForm, NameForm
 from .. import db
-from ..models import Role, User, Composition
+from ..models import ReleaseType, Role, User, Composition
 from flask_login import login_required, current_user
 from .. decorators import admin_required, permission_required
 from ..models import Permission
@@ -45,10 +45,11 @@ def index():
         return redirect(url_for('.index'))
     compositions = Composition.query.order_by(
         Composition.timestamp.desc()).all()
+    
     return render_template(
         'index.html',
         form=form,
-        compositions=compositions
+        compositions=compositions,
     )
 
     # form = NameForm()
