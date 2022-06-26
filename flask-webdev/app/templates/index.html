@@ -19,12 +19,10 @@
 {% endif %}
 </div>
 
-
+<h3>Composition # {{ compositions|length }} </h3>
 
 <form method="POST">
-<!-- {{ form.hidden_tag() }}
-{{ form.name.label }}{{ form.name(id='my-field-id') }}
-{{ form.submit() }} -->
+
 
 {{ wtf.quick_form(form) }}
 

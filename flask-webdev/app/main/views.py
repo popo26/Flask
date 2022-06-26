@@ -1,8 +1,8 @@
 from flask import request, session, render_template, redirect, url_for, flash
 from . import main
-from .forms import AdminLevelEditProfileForm, EditProfileForm, NameForm
+from .forms import AdminLevelEditProfileForm, CompositionForm, EditProfileForm, NameForm
 from .. import db
-from ..models import Role, User
+from ..models import Role, User, Composition
 from flask_login import login_required, current_user
 from .. decorators import admin_required, permission_required
 from ..models import Permission
@@ -30,24 +30,43 @@ def user(username):
 
 
 
-@main.route("/", methods=['GET', "POST"]) # not @app.route anymore
+@main.route('/', methods=['GET', 'POST'])
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        name_entered = form.name.data
-        user = User.query.filter_by(username=name_entered).first()
-        if user is None:
-            user = User(username=name_entered)
-            db.session.add(user)
-            db.session.commit()
-            session['known'] = False
-        else:
-            session['known'] = True
+    form = CompositionForm()
+    if current_user.can(Permission.PUBLISH) \
+            and form.validate_on_submit():
+        composition = Composition(
+            release_type=form.release_type.data,
+            title=form.title.data,
+            description=form.description.data,
+            artist=current_user._get_current_object())
+        db.session.add(composition)
+        db.session.commit()
+        return redirect(url_for('.index'))
+    compositions = Composition.query.order_by(
+        Composition.timestamp.desc()).all()
+    return render_template(
+        'index.html',
+        form=form,
+        compositions=compositions
+    )
 
-        session['name'] = name_entered
-        flash("Great! We hope you enjoy the community")
-        return redirect(url_for('main.index')) # change form just "index". Or ".index"
-    return render_template('index.html', form=form, name=session.get("name"), known=session.get('known', False))
+    # form = NameForm()
+    # if form.validate_on_submit():
+    #     name_entered = form.name.data
+    #     user = User.query.filter_by(username=name_entered).first()
+    #     if user is None:
+    #         user = User(username=name_entered)
+    #         db.session.add(user)
+    #         db.session.commit()
+    #         session['known'] = False
+    #     else:
+    #         session['known'] = True
+
+    #     session['name'] = name_entered
+    #     flash("Great! We hope you enjoy the community")
+    #     return redirect(url_for('main.index')) # change form just "index". Or ".index"
+    # return render_template('index.html', form=form, name=session.get("name"), known=session.get('known', False))
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
 @login_required

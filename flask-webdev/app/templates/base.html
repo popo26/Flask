@@ -6,6 +6,11 @@
 {{ moment.include_moment() }}
 {% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type='text/css' href="{{ url_for('static', filename='static/styles.css') }}">
+{% endblock %}
+
 {% block title %}{{super()}}Ragtime -{% endblock %}
 {% block navbar %}
 <div class="navbar navbar-default" role="navigation">
@@ -26,12 +31,25 @@
 
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <img src="{{ current_user.unicornify(size=32) }}">
+                        Account <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                     
+                        <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+                    </ul>
+                </li>
+
+                
                 <li>
                     <a href="{{ url_for('main.user', username=current_user.username) }}">
                         Profile
                     </a>
                 </li>
+
                 {% else %}
                 <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
                 {% endif %}

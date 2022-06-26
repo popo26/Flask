@@ -6,6 +6,7 @@ import jwt
 from datetime import datetime, timedelta
 from config import config
 from app import create_app, config
+import hashlib
 
 from dotenv import load_dotenv
 
@@ -98,6 +99,8 @@ class User(UserMixin, db.Model):
     location = db.Column(db.String(64))
     bio = db.Column(db.Text())
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
+    avatar_hash = db.Column(db.String(32))
+    compositions = db.relationship('Composition', backref='artist', lazy='dynamic')
 
     def ping(self):
         self.last_seen = datetime.utcnow()
@@ -112,6 +115,10 @@ class User(UserMixin, db.Model):
                 self.role = Role.query.filter_by(name='Administrator').first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
+            if self.email is not None and self.avatar_hash is None:
+                self.avatar_hash = self.email_hash()
+
+        
     # @property
     # def set_password(self):
     #     raise AttributeError("password is not a readable attribute")
@@ -162,6 +169,15 @@ class User(UserMixin, db.Model):
     def is_administrator(self):
         return self.can(Permission.ADMIN)
 
+    def email_hash(self):
+        return hashlib.md5(self.email.lower().encode('utf-8')).hexdigest()
+
+    def unicornify(self, size=128):
+        url = "https://unicornify.pictures/avatar"
+        hash = self.avatar_hash or self.email_hash()
+        return f'{url}/{hash}?s={size}'
+
+
 class AnonymousUser(AnonymousUserMixin):
     def can(self, perm):
         return False
@@ -170,6 +186,20 @@ class AnonymousUser(AnonymousUserMixin):
         return False
 
 login_manager.anonymous_user = AnonymousUser
+
+class ReleaseType:
+    SINGLE = 1
+    EXTENDED_PLAY = 2
+    ALBUM = 3
+
+class Composition(db.Model):
+    __tablename__ = "compositions"
+    id = db.Column(db.Integer, primary_key=True)
+    release_type = db.Column(db.Integer)
+    title = db.Column(db.String(64))
+    description = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index = True, default=datetime.utcnow)
+    artist_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 @login_manager.user_loader
 def load_user(user_id):
